@@ -1,11 +1,16 @@
 import express from 'express'
 import dotenv from 'dotenv'
+import morgan from 'morgan'
 
 import requests from './routes/requests'
 
 dotenv.config({ path: './config/config.env' })
 
 const app = express()
+
+if (process.env.NODE_ENV = 'development') {
+  app.use(morgan('dev'))
+}
 
 app.use('/requests', requests)
 
