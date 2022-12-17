@@ -4,6 +4,7 @@ import morgan from 'morgan'
 
 import requests from './routes/requests'
 import connectDB from './config/db'
+import errorHandler from './middleware/error'
 
 dotenv.config({ path: './config/config.env' })
 
@@ -17,6 +18,7 @@ if (process.env.NODE_ENV = 'development') {
 }
 
 app.use('/requests', requests)
+app.use(errorHandler) // must be after app.use('/requests', requests)
 
 const PORT = process.env.PORT || 5000
 const server = app.listen(PORT, () =>

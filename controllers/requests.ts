@@ -1,42 +1,44 @@
-import { Request, Response } from 'express'
-import RequestModel from '../models/Request'
+import { NextFunction, Request, Response } from 'express'
 
-const getRequests = async (req: Request, res: Response) => {
+import RequestModel from '../models/Request'
+import ErrorResponse from '../utils/errorResponse'
+
+const getRequests = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const requests = await RequestModel.find()
     
     res.status(200).json({ success: true, count: requests.length, data: requests })
   } catch (error) {
-    res.status(400).json({ success: false })
+    next(error)
   }
 }
 
-const getRequest = async (req: Request, res: Response) => {
+const getRequest = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const request = await RequestModel.findById(req.params.id)
 
     // when id has valid format but doesn't exist existent in db
     // fix returning { success: true, data: null }
     if (!request) {
-      return res.status(400).json({ success: false})
+      return next(new ErrorResponse(`Request not found with id of ${req.params.id}`, 404))
     }
     
     res.status(200).json({ success: true, data: request })
   } catch (error) {
-    res.status(400).json({ success: false })
+    next(error)
   }
 }
 
-const createRequest = async (req: Request, res: Response) => {
+const createRequest = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const request = await RequestModel.create(req.body)
     res.status(201).json({ success: true, data: request })
   } catch (error) {
-    res.status(400).json({ success: false })
+    next(error)
   }
 }
 
-const updateRequest = async (req: Request, res: Response) => {
+const updateRequest = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const request = await RequestModel.findByIdAndUpdate(req.params.id, req.body, {
       new: true, // get updated data in response
@@ -44,26 +46,26 @@ const updateRequest = async (req: Request, res: Response) => {
     })
 
     if (!request) {
-      return res.status(400).json({ success: false})
+      return next(new ErrorResponse(`Request not found with id of ${req.params.id}`, 404))
     }
 
     res.status(200).json({ success: true, data: request })
   } catch (error) {
-    res.status(400).json({ success: false })
+    next(error)
   }
 }
 
-const deleteRequest = async (req: Request, res: Response) => {
+const deleteRequest = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const request = await RequestModel.findByIdAndDelete(req.params.id)
 
     if (!request) {
-      return res.status(400).json({ success: false})
+      return next(new ErrorResponse(`Request not found with id of ${req.params.id}`, 404))
     }
 
     res.status(200).json({ success: true, data: {} })
   } catch (error) {
-    res.status(400).json({ success: false })
+    next(error)
   }
 }
 
