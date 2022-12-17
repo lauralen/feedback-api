@@ -53,10 +53,18 @@ const updateRequest = async (req: Request, res: Response) => {
   }
 }
 
-const deleteRequest = (req: Request, res: Response) => {
-  res
-    .status(200)
-    .json({ success: true, message: `Delete request ${req.params.id}` })
+const deleteRequest = async (req: Request, res: Response) => {
+  try {
+    const request = await RequestModel.findByIdAndDelete(req.params.id)
+
+    if (!request) {
+      return res.status(400).json({ success: false})
+    }
+
+    res.status(200).json({ success: true, data: {} })
+  } catch (error) {
+    res.status(400).json({ success: false })
+  }
 }
 
 export default {
