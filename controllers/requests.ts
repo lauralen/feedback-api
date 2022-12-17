@@ -5,7 +5,7 @@ const getRequests = async (req: Request, res: Response) => {
   try {
     const requests = await RequestModel.find()
     
-    res.status(200).json({ success: true, data: requests })
+    res.status(200).json({ success: true, count: requests.length, data: requests })
   } catch (error) {
     res.status(400).json({ success: false })
   }
