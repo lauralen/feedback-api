@@ -1,4 +1,4 @@
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 
 import ErrorResponse from '../utils/errorResponse'
 
@@ -9,7 +9,12 @@ type ResponseError = Error & {
 	errors?: Error[]
 }
 
-const errorHandler = (err: ResponseError, req: Request, res: Response) => {
+const errorHandler = (
+	err: ResponseError,
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
 	console.log(err.stack)
 
 	let error = { ...err }
