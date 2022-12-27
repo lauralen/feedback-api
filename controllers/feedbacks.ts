@@ -6,12 +6,10 @@ import asyncHandler from '../middleware/async'
 
 // TODO: filters
 // - category
-// - most / least comments
-// - most / least upvotes
 // - status
 const getFeedbacks = asyncHandler(async (req: Request, res: Response) => {
 	const requestQuery = { ...req.query }
-	const removeFields = ['select']
+	const removeFields = ['select', 'sort']
 
 	removeFields.forEach((param) => delete requestQuery[param])
 
@@ -23,10 +21,19 @@ const getFeedbacks = asyncHandler(async (req: Request, res: Response) => {
 	query = Feedback.find(JSON.parse(queryString))
 
 	if (req.query.select) {
-		// TODO: ifx type casting by strongly typing RequestHandler
+		// TODO: fix type casting by strongly typing RequestHandler
 		const select = req.query.select as string
 		const fields = select.split(',').join(' ')
 		query = query.select(fields)
+	}
+
+	if (req.query.sort) {
+		// TODO: fix type casting by strongly typing RequestHandler
+		const sort = req.query.sort as string
+		const sortBy = sort.split(',').join(' ')
+		query = query.sort(sortBy)
+	} else {
+		query = query.sort('-createdAt')
 	}
 
 	const feedbacks = await query
