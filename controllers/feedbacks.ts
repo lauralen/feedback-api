@@ -4,8 +4,17 @@ import Feedback from '../models/Feedback'
 import ErrorResponse from '../utils/errorResponse'
 import asyncHandler from '../middleware/async'
 
+// TODO: filters
+// - category
+// - most / least comments
+// - most / least upvotes
+// - status
 const getFeedbacks = asyncHandler(async (req: Request, res: Response) => {
-	const feedbacks = await Feedback.find()
+	const queryString = JSON.stringify(req.query).replace(
+		/\b(gt|gte|lt|lte|in)\b/g,
+		(match) => `$${match}`
+	)
+	const feedbacks = await Feedback.find(JSON.parse(queryString))
 
 	res.status(200).json({
 		success: true,
