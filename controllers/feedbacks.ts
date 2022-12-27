@@ -10,11 +10,26 @@ import asyncHandler from '../middleware/async'
 // - most / least upvotes
 // - status
 const getFeedbacks = asyncHandler(async (req: Request, res: Response) => {
-	const queryString = JSON.stringify(req.query).replace(
+	const requestQuery = { ...req.query }
+	const removeFields = ['select']
+
+	removeFields.forEach((param) => delete requestQuery[param])
+
+	const queryString = JSON.stringify(requestQuery).replace(
 		/\b(gt|gte|lt|lte|in)\b/g,
 		(match) => `$${match}`
 	)
-	const feedbacks = await Feedback.find(JSON.parse(queryString))
+	let query
+	query = Feedback.find(JSON.parse(queryString))
+
+	if (req.query.select) {
+		// TODO: ifx type casting by strongly typing RequestHandler
+		const select = req.query.select as string
+		const fields = select.split(',').join(' ')
+		query = query.select(fields)
+	}
+
+	const feedbacks = await query
 
 	res.status(200).json({
 		success: true,
