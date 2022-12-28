@@ -9,7 +9,7 @@ import asyncHandler from '../middleware/async'
 // - status
 const getFeedbacks = asyncHandler(async (req: Request, res: Response) => {
 	const requestQuery = { ...req.query }
-	const removeFields = ['select', 'sort']
+	const removeFields = ['select', 'sort', 'page', 'limit']
 
 	removeFields.forEach((param) => delete requestQuery[param])
 
@@ -36,11 +36,40 @@ const getFeedbacks = asyncHandler(async (req: Request, res: Response) => {
 		query = query.sort('-createdAt')
 	}
 
+	// TODO: fix type casting by strongly typing RequestHandler
+	const page = parseInt(req.query.page as string, 10) || 1
+	const limit = parseInt(req.query.limit as string, 10) || 100
+	const startIndex = (page - 1) * limit
+	const endIndex = page * limit
+	const total = await Feedback.countDocuments()
+
+	query = query.skip(startIndex).limit(limit)
+
 	const feedbacks = await query
+
+	const pagination: {
+		next?: { page: number; limit: number }
+		previous?: { page: number; limit: number }
+	} = {}
+
+	if (endIndex < total) {
+		pagination.next = {
+			page: page + 1,
+			limit,
+		}
+	}
+
+	if (startIndex > 0) {
+		pagination.previous = {
+			page: page - 1,
+			limit,
+		}
+	}
 
 	res.status(200).json({
 		success: true,
 		count: feedbacks.length,
+		pagination,
 		data: feedbacks,
 	})
 })
