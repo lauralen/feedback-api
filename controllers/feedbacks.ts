@@ -18,7 +18,7 @@ const getFeedbacks = asyncHandler(async (req: Request, res: Response) => {
 		(match) => `$${match}`
 	)
 	let query
-	query = Feedback.find(JSON.parse(queryString))
+	query = Feedback.find(JSON.parse(queryString)).populate('comments')
 
 	if (req.query.select) {
 		// TODO: fix type casting by strongly typing RequestHandler
