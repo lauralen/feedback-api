@@ -53,6 +53,15 @@ const FeedbackSchema = new mongoose.Schema(
 	}
 )
 
+// delete comments when feedback is deleted
+FeedbackSchema.pre('remove', async function (next) {
+	// TODO: fix TS errors
+	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+	// @ts-ignore
+	await this.model('Comment').deleteMany({ feedback: this._id })
+	next()
+})
+
 // reverse populate with virtuals
 FeedbackSchema.virtual('comments', {
 	ref: 'Comment',

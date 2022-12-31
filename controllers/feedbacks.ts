@@ -124,7 +124,7 @@ const updateFeedback = asyncHandler(
 
 const deleteFeedback = asyncHandler(
 	async (req: Request, res: Response, next: NextFunction) => {
-		const feedback = await Feedback.findByIdAndDelete(req.params.id)
+		const feedback = await Feedback.findById(req.params.id)
 
 		if (!feedback) {
 			return next(
@@ -134,6 +134,9 @@ const deleteFeedback = asyncHandler(
 				)
 			)
 		}
+
+		// instead of findByIdAndDelete so delete comments middleware works
+		feedback.remove()
 
 		res.status(200).json({ success: true, data: {} })
 	}
