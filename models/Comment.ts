@@ -25,6 +25,11 @@ const CommentSchema = new mongoose.Schema({
 			},
 		],
 	},
+	feedback: {
+		type: mongoose.Types.ObjectId,
+		ref: 'Feedback',
+		required: true,
+	},
 	// TODO: add user
 })
 
