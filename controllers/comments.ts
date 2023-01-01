@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
 
 import Comment from '../models/Comment'
+import Feedback from '../models/Feedback'
 import asyncHandler from '../middleware/async'
 import ErrorResponse from '../utils/errorResponse'
 
@@ -45,9 +46,24 @@ const getComment = asyncHandler(
 	}
 )
 
-const createComment = asyncHandler(async (req: Request, res: Response) => {
-	const comment = await Comment.create(req.body)
-	res.status(201).json({ success: true, data: comment })
-})
+const createComment = asyncHandler(
+	async (req: Request, res: Response, next: NextFunction) => {
+		req.body.feedback = req.params.feedbackId
+
+		const feedback = await Feedback.findById(req.params.feedbackId)
+
+		if (!feedback) {
+			return next(
+				new ErrorResponse(
+					`Feedback not found with id of ${req.params.feedbackId}`,
+					404
+				)
+			)
+		}
+
+		const comment = await Comment.create(req.body)
+		res.status(201).json({ success: true, data: comment })
+	}
+)
 
 export default { getComments, getComment, createComment }
