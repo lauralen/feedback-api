@@ -6,21 +6,21 @@ import asyncHandler from '../middleware/async'
 import ErrorResponse from '../utils/errorResponse'
 
 const getComments = asyncHandler(async (req: Request, res: Response) => {
-	let query
-
 	if (req.params.feedbackId) {
-		query = Comment.find({ feedback: req.params.feedbackId })
+		const comments = await Comment.find({
+			feedback: req.params.feedbackId,
+		})
+
+		res.status(200).json({
+			success: true,
+			count: comments.length,
+			data: comments,
+		})
 	} else {
-		query = Comment.find()
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// @ts-ignore
+		res.status(200).json(res.advancedResults)
 	}
-
-	const courses = await query
-
-	res.status(200).json({
-		success: true,
-		count: courses.length,
-		data: courses,
-	})
 })
 
 const getComment = asyncHandler(

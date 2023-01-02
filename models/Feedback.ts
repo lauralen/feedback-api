@@ -3,6 +3,15 @@ import mongoose from 'mongoose'
 const MAX_TITLE_LENGTH = 130
 const MAX_DESCRIPTION_LENGTH = 130
 
+export type FeedbackType = {
+	title: string
+	category: string
+	upvotes: number
+	status: string
+	description: string
+	createdAt: string
+}
+
 const FeedbackSchema = new mongoose.Schema(
 	{
 		title: {
@@ -70,4 +79,4 @@ FeedbackSchema.virtual('comments', {
 	justOne: false,
 })
 
-export default mongoose.model('Feedback', FeedbackSchema)
+export default mongoose.model<FeedbackType>('Feedback', FeedbackSchema)
