@@ -66,4 +66,26 @@ const createComment = asyncHandler(
 	}
 )
 
-export default { getComments, getComment, createComment }
+const updateComment = asyncHandler(
+	async (req: Request, res: Response, next: NextFunction) => {
+		let comment = await Comment.findById(req.params.id)
+
+		if (!comment) {
+			return next(
+				new ErrorResponse(
+					`Comment not found with id of ${req.params.id}`,
+					404
+				)
+			)
+		}
+
+		comment = await Comment.findByIdAndUpdate(req.params.id, req.body, {
+			new: true, // get updated data in response
+			runValidators: true,
+		})
+
+		res.status(200).json({ success: true, data: comment })
+	}
+)
+
+export default { getComments, getComment, createComment, updateComment }
