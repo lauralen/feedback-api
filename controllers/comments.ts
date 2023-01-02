@@ -88,4 +88,30 @@ const updateComment = asyncHandler(
 	}
 )
 
-export default { getComments, getComment, createComment, updateComment }
+const deleteComment = asyncHandler(
+	async (req: Request, res: Response, next: NextFunction) => {
+		const comment = await Comment.findById(req.params.id)
+
+		if (!comment) {
+			return next(
+				new ErrorResponse(
+					`Comment not found with id of ${req.params.id}`,
+					404
+				)
+			)
+		}
+
+		// instead of findByIdAndDelete so delete comments middleware works
+		comment.remove()
+
+		res.status(200).json({ success: true, data: {} })
+	}
+)
+
+export default {
+	getComments,
+	getComment,
+	createComment,
+	updateComment,
+	deleteComment,
+}
