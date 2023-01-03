@@ -1,4 +1,6 @@
 import mongoose from 'mongoose'
+import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
 
 const MIN_PASSWORD_LENGTH = 6
 
@@ -41,5 +43,20 @@ const UserSchema = new mongoose.Schema({
 		default: Date.now(),
 	},
 })
+
+UserSchema.pre('save', async function () {
+	const salt = await bcrypt.genSalt(10)
+	this.password = await bcrypt.hash(this.password, salt)
+})
+
+UserSchema.methods.getSignedJwtToken = function () {
+	const { JWT_SECRET, JWT_EXPIRE } = process.env
+
+	if (JWT_SECRET && JWT_EXPIRE) {
+		return jwt.sign({ id: this._id }, JWT_SECRET, {
+			expiresIn: JWT_EXPIRE,
+		})
+	}
+}
 
 export default mongoose.model<UserType>('User', UserSchema)
