@@ -1,7 +1,10 @@
 import express from 'express'
+
 import controller from '../controllers/feedbacks'
 import advancedResults from '../middleware/advancedResults'
+import { protect } from '../middleware/auth'
 import Feedback, { FeedbackType } from '../models/Feedback'
+
 import commentsRouter from './comments'
 
 const router = express.Router()
@@ -14,11 +17,11 @@ router
 		advancedResults<FeedbackType>(Feedback, 'comments'),
 		controller.getFeedbacks
 	)
-	.post(controller.createFeedback)
+	.post(protect, controller.createFeedback)
 router
 	.route('/:id')
 	.get(controller.getFeedback)
-	.put(controller.updateFeedback)
-	.delete(controller.deleteFeedback)
+	.put(protect, controller.updateFeedback)
+	.delete(protect, controller.deleteFeedback)
 
 export = router
