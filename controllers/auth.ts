@@ -78,7 +78,19 @@ const sendTokenResponse = (
 	}
 }
 
+const getLoggedInUserViaToken = asyncHandler(
+	async (req: Request, res: Response) => {
+		// TODO: fix type
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		//@ts-ignore
+		const user = await User.findById(req.user.id)
+
+		res.status(200).json({ data: user })
+	}
+)
+
 export default {
 	registerUser,
 	login,
+	getLoggedInUserViaToken,
 }
