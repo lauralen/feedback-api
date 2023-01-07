@@ -33,6 +33,10 @@ const getFeedback = asyncHandler(
 )
 
 const createFeedback = asyncHandler(async (req: Request, res: Response) => {
+	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+	//@ts-ignore
+	req.body.user = req.user.id
+
 	const feedback = await Feedback.create(req.body)
 	res.status(201).json({ success: true, data: feedback })
 })
