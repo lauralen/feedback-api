@@ -4,7 +4,8 @@ import jwt from 'jsonwebtoken'
 
 const MIN_PASSWORD_LENGTH = 6
 
-type UserType = {
+export type UserType = {
+	id: string
 	name: string
 	email: string
 	role: 'user' | 'publisher'
@@ -12,6 +13,8 @@ type UserType = {
 	resetPasswordToken: string
 	resetPasswordExpire: string
 	createdAt: string
+	getSignedJwtToken: () => string | undefined
+	matchPassword: (password: string) => Promise<boolean>
 }
 
 const UserSchema: Schema = new mongoose.Schema({
@@ -55,7 +58,7 @@ UserSchema.pre('save', async function () {
 	this.password = await bcrypt.hash(this.password, salt)
 })
 
-UserSchema.methods.getSignedJwtToken = function () {
+UserSchema.methods.getSignedJwtToken = function (): string | undefined {
 	const { JWT_SECRET, JWT_EXPIRE } = process.env
 
 	if (JWT_SECRET && JWT_EXPIRE) {
@@ -65,9 +68,11 @@ UserSchema.methods.getSignedJwtToken = function () {
 	}
 }
 
-UserSchema.methods.matchPassword = async function (enteredPassword: string) {
+UserSchema.methods.matchPassword = async function (
+	enteredPassword: string
+): Promise<boolean> {
 	return await bcrypt.compare(enteredPassword, this.password)
 }
 
-type UserModelType = UserType & Document
+export type UserModelType = UserType & Document
 export default mongoose.model<UserModelType>('User', UserSchema)

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
 
-import User from '../models/User'
+import User, { UserModelType, UserType } from '../models/User'
 import asyncHandler from '../middleware/async'
 import ErrorResponse from '../utils/errorResponse'
 
@@ -31,9 +31,6 @@ const login = asyncHandler(
 			return next(new ErrorResponse('Invalid credentials', 401))
 		}
 
-		// TODO: fix
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		// @ts-ignore
 		const doesPasswordMatch = await user.matchPassword(password)
 
 		if (!doesPasswordMatch) {
@@ -45,15 +42,11 @@ const login = asyncHandler(
 )
 
 const sendTokenResponse = (
-	// TODO: strongly type user
-	user: unknown,
+	user: UserModelType,
 	statusCode: number,
 	res: Response
 ) => {
 	if (process.env.JWT_COOKIE_EXPIRE) {
-		// TODO: fix
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		// @ts-ignore
 		const token = user.getSignedJwtToken()
 		const options = {
 			expires: new Date(
@@ -79,11 +72,9 @@ const sendTokenResponse = (
 }
 
 const getLoggedInUserViaToken = asyncHandler(
-	async (req: Request, res: Response) => {
-		// TODO: fix type
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		//@ts-ignore
-		const user = await User.findById(req.user.id)
+	// TODO: make user non optional
+	async (req: Request & { user?: UserType }, res: Response) => {
+		const user = await User.findById(req.user?.id)
 
 		res.status(200).json({ data: user })
 	}
