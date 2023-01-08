@@ -1,14 +1,20 @@
-import mongoose from 'mongoose'
+import mongoose, { Document, Schema } from 'mongoose'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 
 const MIN_PASSWORD_LENGTH = 6
 
-export type UserType = {
+type UserType = {
 	name: string
+	email: string
+	role: 'user' | 'publisher'
+	password: string
+	resetPasswordToken: string
+	resetPasswordExpire: string
+	createdAt: string
 }
 
-const UserSchema = new mongoose.Schema({
+const UserSchema: Schema = new mongoose.Schema({
 	name: {
 		type: String,
 		required: [true, 'Please add a name'],
@@ -63,4 +69,5 @@ UserSchema.methods.matchPassword = async function (enteredPassword: string) {
 	return await bcrypt.compare(enteredPassword, this.password)
 }
 
-export default mongoose.model<UserType>('User', UserSchema)
+type UserModelType = UserType & Document
+export default mongoose.model<UserModelType>('User', UserSchema)

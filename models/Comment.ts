@@ -1,8 +1,8 @@
-import mongoose from 'mongoose'
+import mongoose, { Document, Schema } from 'mongoose'
 
 const MAX_COMMENT_LENGTH = 250
 
-export type CommentType = {
+type CommentType = {
 	content: string
 	replies: CommentType[]
 	feedback: string
@@ -17,7 +17,7 @@ const content = {
 	required: [true, 'Please add content'],
 }
 
-const CommentSchema = new mongoose.Schema({
+const CommentSchema: Schema = new mongoose.Schema({
 	content,
 	replies: {
 		type: [
@@ -39,4 +39,5 @@ const CommentSchema = new mongoose.Schema({
 	// TODO: add user
 })
 
-export default mongoose.model<CommentType>('Comment', CommentSchema)
+export type CommentModelType = CommentType & Document
+export default mongoose.model<CommentModelType>('Comment', CommentSchema)

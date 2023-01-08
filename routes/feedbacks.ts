@@ -3,7 +3,7 @@ import express from 'express'
 import controller from '../controllers/feedbacks'
 import advancedResults from '../middleware/advancedResults'
 import { protect } from '../middleware/auth'
-import Feedback, { FeedbackType } from '../models/Feedback'
+import Feedback, { FeedbackModelType } from '../models/Feedback'
 
 import commentsRouter from './comments'
 
@@ -14,7 +14,7 @@ router.use('/:feedbackId/comments', commentsRouter)
 router
 	.route('/')
 	.get(
-		advancedResults<FeedbackType>(Feedback, 'comments'),
+		advancedResults<FeedbackModelType>(Feedback, 'comments'),
 		controller.getFeedbacks
 	)
 	.post(protect, controller.createFeedback)
