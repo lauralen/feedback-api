@@ -3,15 +3,13 @@ import { NextFunction, Request, Response } from 'express'
 import Feedback from '../models/Feedback'
 import ErrorResponse from '../utils/errorResponse'
 import asyncHandler from '../middleware/async'
+import { AdvancedResultsResponse } from '../middleware/advancedResults'
 
-// TODO: filters
-// - category
-// - status
-const getFeedbacks = asyncHandler(async (req: Request, res: Response) => {
-	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-	// @ts-ignore
-	res.status(200).json(res.advancedResults)
-})
+const getFeedbacks = asyncHandler(
+	async (req: Request, res: AdvancedResultsResponse) => {
+		res.status(200).json(res.advancedResults)
+	}
+)
 
 const getFeedback = asyncHandler(
 	async (req: Request, res: Response, next: NextFunction) => {

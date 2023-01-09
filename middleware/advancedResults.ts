@@ -1,9 +1,25 @@
 import { NextFunction, Request, Response } from 'express'
 import { Model } from 'mongoose'
 
+type Pagination = {
+	next?: { page: number; limit: number }
+	previous?: { page: number; limit: number }
+}
+
+type AdvancedResults = {
+	success: true
+	count: number
+	pagination: Pagination
+	data: unknown
+}
+
+export type AdvancedResultsResponse = Response & {
+	advancedResults?: AdvancedResults
+}
+
 const advancedResults =
 	<T>(model: Model<T>, populate?: string) =>
-		async (req: Request, res: Response, next: NextFunction) => {
+		async (req: Request, res: AdvancedResultsResponse, next: NextFunction) => {
 			const requestQuery = { ...req.query }
 			const removeFields = ['select', 'sort', 'page', 'limit']
 
@@ -47,10 +63,7 @@ const advancedResults =
 
 			const results = await query
 
-			const pagination: {
-			next?: { page: number; limit: number }
-			previous?: { page: number; limit: number }
-		} = {}
+			const pagination: Pagination = {}
 
 			if (endIndex < total) {
 				pagination.next = {
@@ -66,14 +79,14 @@ const advancedResults =
 				}
 			}
 
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-ignore
-			res.advancedResults = {
+			const advancedResults: AdvancedResults = {
 				success: true,
 				count: results.length,
 				pagination,
 				data: results,
 			}
+
+			res.advancedResults = advancedResults
 
 			next()
 		}

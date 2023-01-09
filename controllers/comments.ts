@@ -4,24 +4,25 @@ import Comment from '../models/Comment'
 import Feedback from '../models/Feedback'
 import asyncHandler from '../middleware/async'
 import ErrorResponse from '../utils/errorResponse'
+import { AdvancedResultsResponse } from '../middleware/advancedResults'
 
-const getComments = asyncHandler(async (req: Request, res: Response) => {
-	if (req.params.feedbackId) {
-		const comments = await Comment.find({
-			feedback: req.params.feedbackId,
-		})
+const getComments = asyncHandler(
+	async (req: Request, res: AdvancedResultsResponse) => {
+		if (req.params.feedbackId) {
+			const comments = await Comment.find({
+				feedback: req.params.feedbackId,
+			})
 
-		res.status(200).json({
-			success: true,
-			count: comments.length,
-			data: comments,
-		})
-	} else {
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		// @ts-ignore
-		res.status(200).json(res.advancedResults)
+			res.status(200).json({
+				success: true,
+				count: comments.length,
+				data: comments,
+			})
+		} else {
+			res.status(200).json(res.advancedResults)
+		}
 	}
-})
+)
 
 const getComment = asyncHandler(
 	async (req: Request, res: Response, next: NextFunction) => {
