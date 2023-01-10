@@ -6,6 +6,7 @@ type CommentType = {
 	content: string
 	replies: CommentType[]
 	feedback: string
+	user: string
 }
 
 const content = {
@@ -36,7 +37,11 @@ const CommentSchema: Schema = new mongoose.Schema({
 		ref: 'Feedback',
 		required: true,
 	},
-	// TODO: add user
+	user: {
+		type: mongoose.Types.ObjectId,
+		ref: 'User',
+		required: true,
+	},
 })
 
 export type CommentModelType = CommentType & Document
