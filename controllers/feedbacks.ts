@@ -59,6 +59,20 @@ const updateFeedback = asyncHandler(
 			)
 		}
 
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		//@ts-ignore
+		const { id: userId, role: userRole } = req.user
+
+		// check if user is feedback creator or admin
+		if (feedback.user.toString() !== userId && userRole !== 'admin') {
+			return next(
+				new ErrorResponse(
+					`User ${userId} is not authorized to update this feedback`,
+					401
+				)
+			)
+		}
+
 		res.status(200).json({ success: true, data: feedback })
 	}
 )
@@ -72,6 +86,20 @@ const deleteFeedback = asyncHandler(
 				new ErrorResponse(
 					`Feedback not found with id of ${req.params.id}`,
 					404
+				)
+			)
+		}
+
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		//@ts-ignore
+		const { id: userId, role: userRole } = req.user
+
+		// check if user is feedback creator or admin
+		if (feedback.user.toString() !== userId && userRole !== 'admin') {
+			return next(
+				new ErrorResponse(
+					`User ${userId} is not authorized to delete this feedback`,
+					401
 				)
 			)
 		}
