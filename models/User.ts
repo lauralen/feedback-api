@@ -1,6 +1,7 @@
 import mongoose, { Document, Schema } from 'mongoose'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
+import crypto from 'crypto'
 
 const MIN_PASSWORD_LENGTH = 6
 
@@ -10,11 +11,12 @@ export type UserType = {
 	email: string
 	role: 'user' | 'publisher'
 	password: string
-	resetPasswordToken: string
-	resetPasswordExpire: string
+	resetPasswordToken: string | undefined
+	resetPasswordExpire: string | undefined
 	createdAt: string
 	getSignedJwtToken: () => string | undefined
 	matchPassword: (password: string) => Promise<boolean>
+	getResetPasswordToken: () => string
 }
 
 const UserSchema: Schema = new mongoose.Schema({
@@ -53,7 +55,12 @@ const UserSchema: Schema = new mongoose.Schema({
 	},
 })
 
-UserSchema.pre('save', async function () {
+UserSchema.pre('save', async function (next) {
+	// skip when updating user trough forgotPassword
+	if (!this.isModified('password')) {
+		next()
+	}
+
 	const salt = await bcrypt.genSalt(10)
 	this.password = await bcrypt.hash(this.password, salt)
 })
@@ -72,6 +79,19 @@ UserSchema.methods.matchPassword = async function (
 	enteredPassword: string
 ): Promise<boolean> {
 	return await bcrypt.compare(enteredPassword, this.password)
+}
+
+UserSchema.methods.getResetPasswordToken = function (): string {
+	const resetToken = crypto.randomBytes(20).toString('hex')
+	const hashedToken = crypto
+		.createHash('sha256')
+		.update(resetToken)
+		.digest('hex')
+
+	this.resetPasswordToken = hashedToken
+	this.resetPasswordExpire = Date.now() + 10 * 60 * 1000 // 10 mins from now
+
+	return resetToken
 }
 
 export type UserModelType = UserType & Document

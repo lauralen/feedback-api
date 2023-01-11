@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from 'express'
 import User, { UserModelType, UserType } from '../models/User'
 import asyncHandler from '../middleware/async'
 import ErrorResponse from '../utils/errorResponse'
+import sendEmail from '../utils/sendEmail'
 
 const registerUser = asyncHandler(async (req: Request, res: Response) => {
 	const { name, email, password, role } = req.body
@@ -41,6 +42,55 @@ const login = asyncHandler(
 	}
 )
 
+const getLoggedInUserViaToken = asyncHandler(
+	// TODO: make user non optional
+	async (req: Request & { user?: UserType }, res: Response) => {
+		const user = await User.findById(req.user?.id)
+
+		res.status(200).json({ data: user })
+	}
+)
+
+const forgotPassword = asyncHandler(
+	async (req: Request, res: Response, next: NextFunction) => {
+		const user = await User.findOne({ email: req.body.email })
+
+		if (!user) {
+			return next(new ErrorResponse('No user with email found', 404))
+		}
+
+		const resetToken = user.getResetPasswordToken()
+
+		await user.save({ validateBeforeSave: false })
+
+		const resetUrl = `${req.protocol}://${req.get(
+			'host'
+		)}/api/reset-password/${resetToken}`
+		const message = `TO reset password, make PUT request to ${resetUrl}`
+
+		try {
+			await sendEmail({
+				email: user.email,
+				subject: 'Password reset token',
+				message,
+			})
+
+			res.status(200).json({ success: true, data: 'Email sent' })
+		} catch (error) {
+			console.log(error)
+
+			user.resetPasswordToken = undefined
+			user.resetPasswordExpire = undefined
+
+			await user.save({ validateBeforeSave: false })
+
+			return next(new ErrorResponse('Email could not be sent', 500))
+		}
+
+		res.status(200).json({ data: user })
+	}
+)
+
 const sendTokenResponse = (
 	user: UserModelType,
 	statusCode: number,
@@ -71,17 +121,9 @@ const sendTokenResponse = (
 	}
 }
 
-const getLoggedInUserViaToken = asyncHandler(
-	// TODO: make user non optional
-	async (req: Request & { user?: UserType }, res: Response) => {
-		const user = await User.findById(req.user?.id)
-
-		res.status(200).json({ data: user })
-	}
-)
-
 export default {
 	registerUser,
 	login,
 	getLoggedInUserViaToken,
+	forgotPassword,
 }
