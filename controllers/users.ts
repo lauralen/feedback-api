@@ -44,4 +44,9 @@ const updateUser = asyncHandler(async (req: Request, res: Response) => {
 	res.status(200).json({ success: true, data: user })
 })
 
-export default { getUsers, getUser, createUser, updateUser }
+const deleteUser = asyncHandler(async (req: Request, res: Response) => {
+	await User.findByIdAndDelete(req.params.id)
+	res.status(200).json({ success: true, data: {} })
+})
+
+export default { getUsers, getUser, createUser, updateUser, deleteUser }
