@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser'
 import feedbacks from './routes/feedbacks'
 import comments from './routes/comments'
 import auth from './routes/auth'
+import users from './routes/users'
 import connectDB from './config/db'
 import errorHandler from './middleware/error'
 
@@ -24,6 +25,7 @@ if (process.env.NODE_ENV === 'development') {
 app.use('/feedbacks', feedbacks)
 app.use('/comments', comments)
 app.use('/auth', auth)
+app.use('/users', users)
 app.use(errorHandler) // must be after the routes
 
 const PORT = process.env.PORT || 5000
