@@ -117,6 +117,26 @@ const resetPassword = asyncHandler(
 	}
 )
 
+const updateUserDetails = asyncHandler(
+	// TODO: make user non optional
+	async (req: Request & { user?: UserType }, res: Response) => {
+		const fieldsToUpdate = {
+			name: req.body.name,
+			email: req.body.email,
+		}
+		const user = await User.findByIdAndUpdate(
+			req.user?.id,
+			fieldsToUpdate,
+			{
+				new: true,
+				runValidators: true,
+			}
+		)
+
+		res.status(200).json({ data: user })
+	}
+)
+
 const sendTokenResponse = (
 	user: UserModelType,
 	statusCode: number,
@@ -153,4 +173,5 @@ export default {
 	getLoggedInUserViaToken,
 	forgotPassword,
 	resetPassword,
+	updateUserDetails,
 }
