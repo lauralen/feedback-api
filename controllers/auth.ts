@@ -137,6 +137,30 @@ const updateUserDetails = asyncHandler(
 	}
 )
 
+const updatePassword = asyncHandler(
+	// TODO: make user non optional
+	async (
+		req: Request & { user?: UserType },
+		res: Response,
+		next: NextFunction
+	) => {
+		const user = await User.findById(req.user?.id).select('+password')
+
+		if (!user) {
+			return next(new ErrorResponse('User not found', 401))
+		}
+
+		if (!(await user?.matchPassword(req.body.currentPassword))) {
+			return next(new ErrorResponse('Password is incorrect', 401))
+		}
+
+		user.password = req.body.newPassword
+		await user.save()
+
+		sendTokenResponse(user, 200, res)
+	}
+)
+
 const sendTokenResponse = (
 	user: UserModelType,
 	statusCode: number,
@@ -174,4 +198,5 @@ export default {
 	forgotPassword,
 	resetPassword,
 	updateUserDetails,
+	updatePassword,
 }
