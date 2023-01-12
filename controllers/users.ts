@@ -30,4 +30,9 @@ const getUser = asyncHandler(
 	}
 )
 
-export default { getUsers, getUser }
+const createUser = asyncHandler(async (req: Request, res: Response) => {
+	const user = await User.create(req.body)
+	res.status(201).json({ success: true, data: user })
+})
+
+export default { getUsers, getUser, createUser }
