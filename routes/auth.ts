@@ -8,5 +8,6 @@ router.route('/register').post(controller.registerUser)
 router.route('/login').post(controller.login)
 router.route('/me').get(protect, controller.getLoggedInUserViaToken)
 router.route('/forgot-password').post(controller.forgotPassword)
+router.route('/reset-password/:resetToken').put(controller.resetPassword)
 
 export = router
