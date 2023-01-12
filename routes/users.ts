@@ -10,6 +10,6 @@ router
 	.route('/')
 	.get(advancedResults<UserModelType>(User), controller.getUsers)
 	.post(controller.createUser)
-router.route('/:id').get(controller.getUser)
+router.route('/:id').get(controller.getUser).put(controller.updateUser)
 
 export = router

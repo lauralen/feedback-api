@@ -35,4 +35,13 @@ const createUser = asyncHandler(async (req: Request, res: Response) => {
 	res.status(201).json({ success: true, data: user })
 })
 
-export default { getUsers, getUser, createUser }
+const updateUser = asyncHandler(async (req: Request, res: Response) => {
+	const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+		new: true, // get updated data in response
+		runValidators: true,
+	})
+
+	res.status(200).json({ success: true, data: user })
+})
+
+export default { getUsers, getUser, createUser, updateUser }
